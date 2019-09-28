@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>LocalEthereum Analytics</title>
+  <title>Kauri Articles</title>
   <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 </head>
 <body>
@@ -12,19 +12,19 @@ text-align: center;
 list-style-position: inside;
 }
 
-body {
+/* body {
   /* background-image: url('https://i.ytimg.com/vi/JPpWNjmlO7w/maxresdefault.jpg'); */
   background-image: url('https://www.cryptoninjas.net/wp-content/uploads/2017/10/local-ethereum-launch-live-trading-eth-ether.png')
-}
+} */
 </style>
-  <h1 style="text-align:center">Into the LocalEthereum</h1>
+  <h1 style="text-align:center">Subgraph of Kauri</h1>
 
-  <div style="text-align:center" id="transactions">
-    Enter latest trades started
+  <div style="text-align:center" id="all">
+    <b>Enter the no of latest articles you want</b>
     <input name="n" placeholder="0">
     <ol class="center">
-        <li v-for="tx1 in txs1">
-        {{ tx1 }}
+        <li v-for="d in dt ">
+        {{ d }}
         </li>
     </ol>
     <button v-on:click="submitButton">submit</button>
@@ -33,12 +33,13 @@ body {
   <br/>
   <br/>
 
-  <div style="text-align:center" id="release">
-    Enter latest trades released
+  <div style="text-align:center" id="titles">
+    <b>Get latest titles and their author</b>
     <input name="m" placeholder="0">
     <ol class="center">
-        <li v-for="tx2 in txs2">
-        {{ tx2 }}
+        <li v-for="i in dt1.length">
+        <b>Author:</b> {{ dt1[i-1] }}      <b>Title: </b></bTitle:> {{ dt2[i-1] }} 
+        <br/>
         </li>
     </ol>
     <button v-on:click="submitButton">submit</button>
@@ -47,7 +48,34 @@ body {
   <br/>
   <br/>
 
-  <div style="text-align:center" id="releaseOr">
+  <div style="text-align:center" id="author">
+    <b>Get titles by specific author</b>
+    <input name="o" placeholder="">
+    <ol class="center">
+        <li v-for="e in titl">
+         <i>{{ e }}</i>
+        <br/>
+        </li>
+    </ol>
+    <button v-on:click="submitButton">submit</button>
+  </div>
+
+  <br/>
+  <br/>
+
+
+  <div style="text-align:center" id="tag">
+    <b>Get titles with specific tag on latest articles</b>
+    <input name="p" placeholder="">
+    <ol class="center">
+        <li v-for="f in tagg">
+         <i>{{ f }}</i>
+        <br/>
+        </li>
+    </ol>
+    <button v-on:click="submitButton">submit</button>
+  </div>
+  <!-- <div style="text-align:center" id="releaseOr">
     Given trade was released
     <input name="o" placeholder="txHash">
     <p>{{ released }}</p>
@@ -62,14 +90,15 @@ body {
     <input name="p" placeholder="cancelledTradehash">
     <p>{{ cancelled }}</p>
     <button v-on:click="submitButton">submit</button>
-  </div>
+  </div> -->
 
   <script>
 
-    var Tx1 = new Vue({
-    el: '#transactions',
+
+    var Content = new Vue({
+    el: '#all',
     data: {
-        txs1: []
+        dt: []
     },
     methods: {
         submitButton: function (event) {
@@ -80,29 +109,32 @@ body {
               "Content-Type": "application/json"
             },
             body: JSON.stringify({
-              query: '{ createds(first: ' + n +') { id _tradeHash } }'
+              query: '{ articles(first: ' + n +') { content } }'
             })
           };
           (async() => {
-            var res = await fetch(`https://api.thegraph.com/subgraphs/name/nanspro/localethereum`, options);
-            var data = await res.json();
-            var createds = data["data"]
-            var txss = createds["createds"]
-            var ls = []
-            for (var i=0; i<txss.length; i++){
-                var hash = txss[i]["_tradeHash"]
-                ls.push(hash)
+            var res = await fetch(`https://api.thegraph.com/subgraphs/name/nanspro/kauri`, options);
+            var data1 = await res.json();
+            // console.log(data1)
+            var articls = data1["data"]
+            var articles = articls["articles"]
+            // console.log(articles)
+            var data = []
+            for (var i=0; i<articles.length; i++){
+                var d = articles[i]["content"]
+                data.push(d)
             }
-            Tx1.txs1 = ls
+            Content.dt = data
           })()
         }
       }
     })
 
-    var Tx2 = new Vue({
-    el: '#release',
+    var Title = new Vue({
+    el: '#titles',
     data: {
-        txs2: []
+        dt1: [],
+        dt2: []
     },
     methods: {
         submitButton: function (event) {
@@ -113,32 +145,38 @@ body {
               "Content-Type": "application/json"
             },
             body: JSON.stringify({
-              query: '{ releaseds(first: ' + m +') { id _tradeHash } }'
+              query: '{ articles(first: ' + m +') { author title } }'
             })
           };
           (async() => {
-            var res = await fetch(`https://api.thegraph.com/subgraphs/name/nanspro/localethereum`, options);
+            var res = await fetch(`https://api.thegraph.com/subgraphs/name/nanspro/kauri`, options);
             var data = await res.json();
-            var createds = data["data"]
-            var txss = createds["releaseds"]
-            var ls = []
-            for (var i=0; i<txss.length; i++){
-                var hash = txss[i]["_tradeHash"]
-                ls.push(hash)
+            console.log(data);
+            var articls = data["data"]
+            var articles = articls["articles"]
+            console.log(articles)
+            var data1 = []
+            var data2 = []
+            for (var i=0; i<articles.length; i++){
+                var d = articles[i]["title"]
+                var e = articles[i]["author"]
+                data1.push(e)
+                data2.push(d)
             }
-            Tx2.txs2 = ls
+            Title.dt1 = data1
+            Title.dt2 = data2
           })()
         }
       }
     })
 
-    var Tx3 = new Vue({
-    el: '#releaseOr',
+    var Author = new Vue({
+    el: '#author',
     data: {
-        released: ''
+        titl: []
     },
     methods: {
-        submitButton: function (event) {
+        submitButton: function(event) {
           const hash = document.querySelector("input[name=o]").value;
           const options = {
             method: "post",
@@ -146,129 +184,70 @@ body {
               "Content-Type": "application/json"
             },
             body: JSON.stringify({
-              query: '{ releaseds(where: {_tradeHash: "' + hash + '"}) { id _tradeHash } }'
+              query: '{ articles(where: {author: ' + '"' + hash + '"' + '}) { title } }'
             })
           };
           (async() => {
-            var res = await fetch(`https://api.thegraph.com/subgraphs/name/nanspro/localethereum`, options);
+            var res = await fetch(`https://api.thegraph.com/subgraphs/name/nanspro/kauri`, options);
             var data = await res.json();
             console.log(data);
-            var releaseds = data.hasOwnProperty("data")
-            if (!releaseds){
-                Tx3.released = 'False'
-            } else {
-                var release = data["data"]["releaseds"]
-                if (release.length != 0){
-                    Tx3.released = 'True'
-                } else {
-                Tx3.released = 'False'
-              }
+            var articls = data["data"]
+            var articles = articls["articles"]
+            console.log(articles)
+            var data1 = []
+            for (var i=0; i<articles.length; i++){
+                var d = articles[i]["title"]
+                data1.push(d)
             }
+            Author.titl = data1
+            console.log(data1)
           })()
         }
-      }
+    }
     })
 
-    var Tx4 = new Vue({
-    el: '#cancel',
+
+    var Tags = new Vue({
+    el: '#tag',
     data: {
-        cancelled: '',
-        exist: ''
+        tagg: []
     },
     methods: {
-        checkSeller: function() {
+        submitButton: function(event) {
           const hash = document.querySelector("input[name=p]").value;
+          console.log(hash)
           const options = {
             method: "post",
             headers: {
               "Content-Type": "application/json"
             },
             body: JSON.stringify({
-              query: '{ cancelledBySellers(where: {_tradeHash: "' + hash + '"}) { id _tradeHash } }'
+              query: '{ articles(first: 10) { tags title } }'
             })
           };
           (async() => {
-            var res = await fetch(`https://api.thegraph.com/subgraphs/name/nanspro/localethereum`, options);
+            var res = await fetch(`https://api.thegraph.com/subgraphs/name/nanspro/kauri`, options);
             var data = await res.json();
             console.log(data);
-            var cancelledBySellers = data.hasOwnProperty("data")
-            if (cancelledBySellers){
-                var cac = data["data"]["cancelledBySellers"]
-                if (cac.length != 0) {
-                Tx4.cancelled = 'Seller cancelled the trade'
-                }
-            }
-          })()  
-        },
+            var articls = data["data"]
+            var articles = articls["articles"]
+            console.log(articles)
+            var data1 = []
+            for (var i=0; i<articles.length; i++){
+                var d = articles[i]["tags"]
+                for(var j=0; j<d.length; j++){
+                  if (d[j] == hash){
+                    data1.push(articles[i]["title"])
+                    break;
+                  } 
 
-        checkBuyer: function() {
-          const hash = document.querySelector("input[name=p]").value;
-          const options = {
-            method: "post",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              query: '{ cancelledByBuyers(where: {_tradeHash: "' + hash + '"}) { id _tradeHash } }'
-            })
-          };
-          (async() => {
-            var res = await fetch(`https://api.thegraph.com/subgraphs/name/nanspro/localethereum`, options);
-            var data = await res.json();
-            console.log(data);
-            var cancelledByBuyers = data.hasOwnProperty("data")
-            if (cancelledByBuyers){
-                var cac = data["data"]["cancelledByBuyers"]
-                if (cac.length != 0) {
-                Tx4.cancelled = 'Buyer cancelled the trade'
                 }
             }
-          })()  
-        },
-        
-        checkCreated: function() {
-          const hash = document.querySelector("input[name=p]").value;
-          const options = {
-            method: "post",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              query: '{ createds(where: {_tradeHash: "' + hash + '"}) { id _tradeHash } }'
-            })
-          };
-          (async() => {
-            var res = await fetch(`https://api.thegraph.com/subgraphs/name/nanspro/localethereum`, options);
-            var data = await res.json();
-            console.log(data);
-            var createds = data.hasOwnProperty("data")
-            if (createds){
-            var create = data["data"]["createds"]
-            if (create.length != 0){
-                Tx4.exist = 'True'
-            } else {
-            Tx4.exist = 'False'
-            }} else {
-                Tx4.exist = 'False'
-            }
+            Tags.tagg = data1
+            console.log(data1)
           })()
-        },
-
-        submitButton: function (event) {
-          const hash = document.querySelector("input[name=p]").value;
-          this.checkCreated();
-          if (Tx4.exist == 'True'){
-            this.checkSeller();
-            this.checkBuyer();
-          }
-          else if (Tx4.exist == 'False'){
-              Tx4.cancelled = 'Trade does not exist'
-          }
-          else {
-            Tx4.cancelled = 'Submit Again'
-          }
         }
-      }
+    }
     })
   </script>
 </body>
