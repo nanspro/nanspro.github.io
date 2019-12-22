@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Kauri Articles</title>
+  <title>Ray Protocol</title>
   <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 </head>
 <body>
@@ -14,14 +14,15 @@ list-style-position: inside;
 
 /* body {
   /* background-image: url('https://i.ytimg.com/vi/JPpWNjmlO7w/maxresdefault.jpg'); */
-  background-image: url('https://www.cryptoninjas.net/wp-content/uploads/2017/10/local-ethereum-launch-live-trading-eth-ether.png')
-} */
+  /* background-image: url('https://www.cryptoninjas.net/wp-content/uploads/2017/10/local-ethereum-launch-live-trading-eth-ether.png') */
+/* } */
+
 </style>
-  <h1 style="text-align:center">Subgraph of Kauri</h1>
+  <h1 style="text-align:center"> Robo Advisor for Yield</h1>
 
   <div style="text-align:center" id="all">
-    <b>Enter the no of latest articles you want</b>
-    <input name="n" placeholder="0">
+    <b>Get user position on ray</b>
+    <input name="addr" placeholder="0x">
     <ol class="center">
         <li v-for="d in dt ">
         {{ d }}
@@ -33,7 +34,37 @@ list-style-position: inside;
   <br/>
   <br/>
 
-  <div style="text-align:center" id="titles">
+
+  <div style="text-align:center" id="tokens">
+    <b>Get ray tokens</b>
+    <input name="n" placeholder="0">
+    <ol class="center">
+        <li v-for="x in xt ">
+        {{ x }}
+        </li>
+    </ol>
+    <button v-on:click="submitButton">submit</button>
+  </div>
+
+  <br/>
+  <br/>
+
+
+  <div style="text-align:center" id="opps">
+    <b>Get opportunities</b>
+    <input name="f" placeholder="0">
+    <ol class="center">
+        <li v-for="y in yt ">
+        {{ y }}
+        </li>
+    </ol>
+    <button v-on:click="submitButton">submit</button>
+  </div>
+
+  <br/>
+  <br/>
+
+  <!-- <div style="text-align:center" id="titles">
     <b>Get latest titles and their author</b>
     <input name="m" placeholder="0">
     <ol class="center">
@@ -74,27 +105,11 @@ list-style-position: inside;
         </li>
     </ol>
     <button v-on:click="submitButton">submit</button>
-  </div>
-  <!-- <div style="text-align:center" id="releaseOr">
-    Given trade was released
-    <input name="o" placeholder="txHash">
-    <p>{{ released }}</p>
-    <button v-on:click="submitButton">submit</button>
-  </div>
-
-  <br/>
-  <br/>
-
-  <div style="text-align:center" id="cancel">
-    Who cancelled the given trade
-    <input name="p" placeholder="cancelledTradehash">
-    <p>{{ cancelled }}</p>
-    <button v-on:click="submitButton">submit</button>
   </div> -->
 
   <script>
 
-
+    var url = `https://api.thegraph.com/subgraphs/name/nanspro/ray`
     var Content = new Vue({
     el: '#all',
     data: {
@@ -102,111 +117,133 @@ list-style-position: inside;
     },
     methods: {
         submitButton: function (event) {
-          const n = document.querySelector("input[name=n]").value;
+          const n = document.querySelector("input[name=addr]").value;
+          console.log(n)
           const options = {
             method: "post",
             headers: {
               "Content-Type": "application/json"
             },
             body: JSON.stringify({
-              query: '{ articles(first: ' + n +') { content } }'
+              query: '{ users(where: {address: ' + '"' + n + '"' + '}) { id portfolioId tokenValue tokenAddr isERC20 }}'
             })
           };
           (async() => {
-            var res = await fetch(`https://api.thegraph.com/subgraphs/name/nanspro/kauri`, options);
+            var res = await fetch(url, options);
+            console.log(res)
             var data1 = await res.json();
-            // console.log(data1)
-            var articls = data1["data"]
-            var articles = articls["articles"]
-            // console.log(articles)
+            data1 = data1["data"]["users"]["0"]
+            console.log(data1)
+            var id = data1["id"]
+            console.log(id)
+            var a = data1["portfolioId"]
+            var b = data1["tokenValue"]
+            var c = data1["tokenAddr"]
+            var d = data1["isERC20"]
+            console.log(a)
+            console.log(b)
+            console.log(c)
+            console.log(d)
+
             var data = []
-            for (var i=0; i<articles.length; i++){
-                var d = articles[i]["content"]
-                data.push(d)
-            }
+            data.push("ID: " + id)
+            data.push("Portfolio ID: " + a)
+            data.push("Value: " + b)
+            data.push("tokenAddr: " + c)
+            data.push("isERC20: " + d)
+
             Content.dt = data
           })()
         }
       }
     })
 
-    var Title = new Vue({
-    el: '#titles',
+
+    var RayTokens = new Vue({
+    el: '#tokens',
     data: {
-        dt1: [],
-        dt2: []
+        xt: []
     },
     methods: {
         submitButton: function (event) {
-          const m = document.querySelector("input[name=m]").value;
+          const n = document.querySelector("input[name=n]").value;
+          console.log(n)
           const options = {
             method: "post",
             headers: {
               "Content-Type": "application/json"
             },
             body: JSON.stringify({
-              query: '{ articles(first: ' + m +') { author title } }'
+              query: '{ rayTokens(first: ' + n +') { id owner { address } } }'
             })
           };
           (async() => {
-            var res = await fetch(`https://api.thegraph.com/subgraphs/name/nanspro/kauri`, options);
-            var data = await res.json();
-            console.log(data);
-            var articls = data["data"]
-            var articles = articls["articles"]
-            console.log(articles)
-            var data1 = []
-            var data2 = []
-            for (var i=0; i<articles.length; i++){
-                var d = articles[i]["title"]
-                var e = articles[i]["author"]
-                data1.push(e)
-                data2.push(d)
+            var res = await fetch(url, options);
+            console.log(res)
+            var data1 = await res.json();
+            console.log(data1)
+            var data = []
+            for (var i=0; i<data1["data"]["rayTokens"].length; i++){
+              var data2 = data1["data"]["rayTokens"][i]
+              console.log(data2)
+              var id = data2["id"]
+              console.log(id)
+              var owner = data2["owner"]["address"]
+              console.log(id)
+              console.log(owner)
+              var x = {"TokenID": id, "Owner": owner}
+              console.log(x)
+              data.push(x)
             }
-            Title.dt1 = data1
-            Title.dt2 = data2
+            RayTokens.xt = data
           })()
         }
       }
     })
 
-    var Author = new Vue({
-    el: '#author',
+
+    var Opps = new Vue({
+    el: '#opps',
     data: {
-        titl: []
+        yt: []
     },
     methods: {
-        submitButton: function(event) {
-          const hash = document.querySelector("input[name=o]").value;
+        submitButton: function (event) {
+          const f = document.querySelector("input[name=f]").value;
+          console.log(f)
           const options = {
             method: "post",
             headers: {
               "Content-Type": "application/json"
             },
             body: JSON.stringify({
-              query: '{ articles(where: {author: ' + '"' + hash + '"' + '}) { title } }'
+              query: '{ opportunities(first: ' + f +') { id opportunityTokenId portfolioId } }'
             })
           };
           (async() => {
-            var res = await fetch(`https://api.thegraph.com/subgraphs/name/nanspro/kauri`, options);
-            var data = await res.json();
-            console.log(data);
-            var articls = data["data"]
-            var articles = articls["articles"]
-            console.log(articles)
-            var data1 = []
-            for (var i=0; i<articles.length; i++){
-                var d = articles[i]["title"]
-                data1.push(d)
-            }
-            Author.titl = data1
+            var res = await fetch(url, options);
+            console.log(res)
+            var data1 = await res.json();
             console.log(data1)
+            var data = []
+            for (var i=0; i<data1["data"]["opportunities"].length; i++){
+              var data2 = data1["data"]["opportunities"][i]
+              // console.log(data2)
+              var id = data2["id"]
+              // console.log(id)
+              var tokenId = data2["opportunityTokenId"]
+              var porId = data2["portfolioId"]
+              var x = {"ID": id, "opportunityTokenId": tokenId, "portfolioId": porId }
+              // console.log(x)
+              data.push(x)
+            }
+            Opps.yt = data
           })()
         }
-    }
+      }
     })
 
-
+    
     var Tags = new Vue({
     el: '#tag',
     data: {
