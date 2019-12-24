@@ -64,6 +64,21 @@ list-style-position: inside;
   <br/>
   <br/>
 
+  <div style="text-align:center" id="ray">
+    <b>Get ray token position</b>
+    <input name="r" placeholder="0x">
+    <ol class="center">
+        <li v-for="r in rt ">
+        {{ r }}
+        </li>
+    </ol>
+    <button v-on:click="submitButton">submit</button>
+  </div>
+
+  <br/>
+  <br/>
+
+
   <!-- <div style="text-align:center" id="titles">
     <b>Get latest titles and their author</b>
     <input name="m" placeholder="0">
@@ -153,6 +168,61 @@ list-style-position: inside;
             data.push("isERC20: " + d)
 
             Content.dt = data
+          })()
+        }
+      }
+    })
+
+    var Ray = new Vue({
+    el: '#ray',
+    data: {
+        rt: []
+    },
+    methods: {
+        submitButton: function (event) {
+          const r = document.querySelector("input[name=r]").value;
+          console.log(r)
+          const options = {
+            method: "post",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              query: '{ rayTokens(where: {id: ' + '"' + r + '"' + '}) { id owner { id address portfolioId tokenValue tokenAddr isERC20 }}}'
+            })
+          };
+          (async() => {
+            var res = await fetch(url, options);
+            console.log(res)
+            var data1 = await res.json();
+            // data1 = data1
+            // console.log(data1)
+            data1 = data1["data"]["rayTokens"][0]
+            var id = data1["id"]
+            console.log(id)
+            data1 = data1["owner"]
+            var a = data1["portfolioId"]
+            var b = data1["tokenValue"]
+            var c = data1["tokenAddr"]
+            var d = data1["isERC20"]
+            var e = data1["address"]
+            
+            console.log(a)
+            console.log(b)
+            console.log(c)
+            console.log(d)
+            console.log(e)
+
+            var data = []
+            data.push("ID: " + id)
+            data.push("Portfolio ID: " + a)
+            data.push("Value: " + b)
+            data.push("tokenAddr: " + c)
+            data.push("isERC20: " + d)
+            data.push("Owner: " + e)
+
+
+            Ray.rt = data
           })()
         }
       }
